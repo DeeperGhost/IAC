@@ -22,13 +22,32 @@ app.layout = html.Div(children=[
     html.H1(children='Информационно аналитический центр'),
 
     html.Div(children='''
-        Dash: A web application framework for your data.
-    # '''),
-    #
-    # dcc.Graph(
-    #     id='example-graph',
-    #     figure=fig
-    # )
+        Dash: A web application framework for Python.
+    '''),
+
+    dcc.Graph(
+        id='example-graph',
+        figure={
+            'data': [
+                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
+                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
+            ],
+            'layout': {
+                'title': 'Пример диаграммы'
+            }
+        }
+    ),
+    dcc.Graph(
+        id='example-graph2',
+        figure={
+            'data': [
+                {'x': [1, 2, 3], 'y': [4, 3, 1], 'type': 'bar', 'name': 'SF'},
+            ],
+            'layout': {
+                'title': 'Пример диаграммы2'
+            }
+        }
+    )
 ])
 
 if __name__ == '__main__':
