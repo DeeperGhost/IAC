@@ -109,5 +109,5 @@ def update_output(value):
 
 
 if __name__ == '__main__':
-    # app.run_server(debug=True)
-    app.run_server(host='192.168.0.100', port='5000', debug=True)
+    app.run_server(debug=True)
+    # app.run_server(host='192.168.0.100', port='5000', debug=True)
