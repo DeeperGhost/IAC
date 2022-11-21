@@ -7,3 +7,4 @@ dash
 itsdangerous
 gunicorn
 pandas
+dash-bootstrap-components
