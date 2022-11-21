@@ -26,11 +26,4 @@ df = pd.read_csv(vpo12022_12, delimiter=";")
 vpo2 = html.Div(children=[
     html.H1(children='Информационно-аналитический центр', style={'color': colors['text']}),
 
-    html.Div([
-        dcc.Graph(
-        id="graph4",
-        figure=fig,
-        )],
-        style={'width': '25%', 'display': 'inline-block'}
-    )
 ])

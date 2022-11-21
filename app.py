@@ -89,24 +89,6 @@ def pagecontent(pathname):
         ]
 
 
-@app.callback(
-    Output(component_id='output_graph', component_property='figure'),
-    [Input(component_id='demo_drop', component_property='value')]
-)
-def update_output(value):
-    if value == 'cut':
-        pass
-        # h = df1.groupby(['cut'], as_index=False, sort=False)['carat'].count()
-    elif value == 'clarity':
-        pass
-        # h = df1.groupby(['clarity'], as_index=False, sort=False)['carat'].count()
-    elif value == 'color':
-        pass
-        # h = df1.groupby(['color'], as_index=False, sort=False)['carat'].count()
-    # fig = px.bar(h, x=value, y="carat", labels={"carat": "Count"})
-    return 0
-    # fig
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)

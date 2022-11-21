@@ -2,6 +2,7 @@
 /data/*
 /.idea*
 __pycache__/
+*__pycache__/*
 *.idea*
 vcs.xml
 *xlsx
