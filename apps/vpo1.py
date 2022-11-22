@@ -12,38 +12,40 @@ import plotly.graph_objects as go
 # vpo12022_211 = "https://bb.dvfu.ru/bbcswebdav/orgs/FUDOOD/%D0%91%D0%94/%D0%98%D0%90%D0%A6/2.1.1.csv"
 
 # Googgle drive
-# vpo12022_12 = "https://drive.google.com/file/d/1F5wYeD8Ji13zjImHiZ12nSkUaC_usjco/view?usp=sharing"
-# vpo12022_211 = "https://drive.google.com/file/d/1vKZE3_rTTxCR---Oa5ukADlNpPXUOsfm/view?usp=sharing"
-# path = 'https://drive.google.com/uc?export=download&id='
-# df = pd.read_csv(path+vpo12022_12.split('/')[-2], delimiter=";")
-# df1 = pd.read_csv(path+vpo12022_211.split('/')[-2], delimiter=";")
+vpo12022_12 = "https://drive.google.com/file/d/1F5wYeD8Ji13zjImHiZ12nSkUaC_usjco/view?usp=sharing"
+vpo12022_211 = "https://drive.google.com/file/d/1vKZE3_rTTxCR---Oa5ukADlNpPXUOsfm/view?usp=sharing"
+vpo12022_211b = "https://drive.google.com/file/d/1tnHDlfeAIQgxp7B46HevqXIJ0QyKHeiN/view?usp=sharing"
+path = 'https://drive.google.com/uc?export=download&id='
+df = pd.read_csv(path+vpo12022_12.split('/')[-2], delimiter=";")
+df1 = pd.read_csv(path+vpo12022_211.split('/')[-2], delimiter=";")
+df3 = pd.read_csv(path+vpo12022_211b.split('/')[-2])
 
 # Local
-vpo12022_12 = "H:/IAC/1.2.csv"
-vpo12022_211 = "H:/IAC/2.1.1.csv"
-df = pd.read_csv(vpo12022_12, delimiter=";")
-df1 = pd.read_csv(vpo12022_211, delimiter=";")
+# vpo12022_12 = "H:/IAC/1.2.csv"
+# vpo12022_211 = "H:/IAC/2.1.1.csv"
+# df = pd.read_csv(vpo12022_12, delimiter=";")
+# df1 = pd.read_csv(vpo12022_211, delimiter=";")
+# from pathlib import Path
+# filepath = Path('H:/IAC/2.1.1b.csv')
+# filepath.parent.mkdir(parents=True, exist_ok=True)
+# df3 = pd.read_csv(filepath)
 
 df1["УГС"] = df1["НПП"].map(lambda x: x[:2])
 
-df2 = df1[['уровень',
-           'Среднее минимальное количество баллов принятых на бюджет',
-           'Среднее минимальное количество баллов принятыхна рамках квоты',
-           'Среднее минимальное количество баллов с учетом принятых имеющие особое право',
-           'Среднее минимальное количество баллов принятых на договор',
-           'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых на бюджет',
-           'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых  в рамках квоты',
-           'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых имеющих особое право',
-           'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых на договор'
-           ]].groupby('уровень').mean().T
+# df2 = df1[['уровень',
+#            'Среднее минимальное количество баллов принятых на бюджет',
+#            'Среднее минимальное количество баллов принятыхна рамках квоты',
+#            'Среднее минимальное количество баллов с учетом принятых имеющие особое право',
+#            'Среднее минимальное количество баллов принятых на договор',
+#            'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых на бюджет',
+#            'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых  в рамках квоты',
+#            'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых имеющих особое право',
+#            'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых на договор'
+#            ]].groupby('уровень').mean().T
 # df = df2.set_index('уровень')
 # df2.groups.keys()
-from pathlib import Path
-filepath = Path('H:/IAC/out.csv')
-filepath.parent.mkdir(parents=True, exist_ok=True)
-# df2.to_csv(filepath,encoding='utf-8')
-df3 = pd.read_csv(filepath)
 
+# df2.to_csv(filepath,encoding='utf-8')
 
 
 colors = {
