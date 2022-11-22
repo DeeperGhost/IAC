@@ -43,7 +43,7 @@ df1["УГС"] = df1["НПП"].map(lambda x: x[:2])
 #            'Среднее количество баллов ЕГЭ с учетом дополнительных испытаний у принятых на договор'
 #            ]].groupby('уровень').mean().T
 # df = df2.set_index('уровень')
-# df2.groups.keys()
+
 
 # df2.to_csv(filepath,encoding='utf-8')
 
