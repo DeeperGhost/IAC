@@ -15,20 +15,28 @@ import plotly.graph_objects as go
 vpo12022_12 = "https://drive.google.com/file/d/1F5wYeD8Ji13zjImHiZ12nSkUaC_usjco/view?usp=sharing"
 vpo12022_211 = "https://drive.google.com/file/d/1vKZE3_rTTxCR---Oa5ukADlNpPXUOsfm/view?usp=sharing"
 vpo12022_211b = "https://drive.google.com/file/d/1tnHDlfeAIQgxp7B46HevqXIJ0QyKHeiN/view?usp=sharing"
+vpo12022_212 = "https://drive.google.com/file/d/1nC3OXvCDro3NiinZe5KMAIHv6T7JhJBX/view?usp=sharing"
+vpo12022_212b = "https://drive.google.com/file/d/1JVdS0zQob2fU0pd5SE1AKQNdVzGFKczu/view?usp=sharing"
+
 path = 'https://drive.google.com/uc?export=download&id='
 df = pd.read_csv(path+vpo12022_12.split('/')[-2], delimiter=";")
 df1 = pd.read_csv(path+vpo12022_211.split('/')[-2], delimiter=";")
 df3 = pd.read_csv(path+vpo12022_211b.split('/')[-2])
-
+df5 = pd.read_csv(path+vpo12022_212b.split('/')[-2])
+df4 = pd.read_csv(path+vpo12022_212.split('/')[-2], delimiter=";")
 # Local
 # vpo12022_12 = "H:/IAC/1.2.csv"
 # vpo12022_211 = "H:/IAC/2.1.1.csv"
+# vpo12022_212 = "H:/IAC/2.1.2.csv"
+# vpo12022_212b = "H:/IAC/2.1.2b.csv"
 # df = pd.read_csv(vpo12022_12, delimiter=";")
 # df1 = pd.read_csv(vpo12022_211, delimiter=";")
 # from pathlib import Path
 # filepath = Path('H:/IAC/2.1.1b.csv')
 # filepath.parent.mkdir(parents=True, exist_ok=True)
 # df3 = pd.read_csv(filepath)
+# df5 = pd.read_csv(vpo12022_212b)
+# df4 = pd.read_csv(vpo12022_212, delimiter=";")
 
 df1["УГС"] = df1["НПП"].map(lambda x: x[:2])
 
@@ -44,8 +52,16 @@ df1["УГС"] = df1["НПП"].map(lambda x: x[:2])
 #            ]].groupby('уровень').mean().T
 # df = df2.set_index('уровень')
 
-
-# df2.to_csv(filepath,encoding='utf-8')
+# df5 = df4.groupby(['уровень', 'форма']).sum().reset_index()
+# df5 = df5.assign(lvlform= df5['форма']+' '+df5['уровень'])
+# df5 = df5.drop(['уровень', 'форма'], axis=1).T
+# df5.to_csv('H:/IAC/out.csv',encoding='utf-8')
+df5['all'] = df5[['заочная бакалавриат',
+                'очная бакалавриат',
+                'заочная магистратура',
+                'очная магистратура',
+                'заочная специалитет',
+                'очная специалитет']].sum(axis=1)
 
 
 colors = {
@@ -115,7 +131,9 @@ fig211mean1 = px.bar(df3,
               x=['бакалавриат'],
               color="ТИП",
               title="Баллы приема на бакалавриат",
+              labels={"value": "баллы", "index": "тип"},
               color_discrete_sequence=px.colors.sequential.RdBu
+
 )
 fig211mean1.update_layout({
     'plot_bgcolor': colors['background'],
@@ -131,6 +149,7 @@ fig211mean2 = px.bar(df3,
               x=['специалитет'],
               color="ТИП",
               title="Баллы приема на специалитет",
+              labels= {"value": "баллы", "index": "тип"},
               color_discrete_sequence=px.colors.sequential.RdBu
 )
 fig211mean2.update_layout({
@@ -140,6 +159,53 @@ fig211mean2.update_layout({
         'color': colors['text']
     }
 })
+fig212kont = px.bar(df5,
+                    x=['all'],
+                    y='тип',
+                    title="Контингент г.Владиаосток по курсам",
+                    color='тип',
+                    color_discrete_sequence=px.colors.sequential.RdBu
+)
+fig212kont.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+
+
+fig212kontb = go.Figure()
+
+fig212kontb.add_trace(go.Bar(
+  y= df5['all'],
+  x= df5['тип'],
+  name= "всего",
+  # color_discrete_sequence=px.colors.sequential.RdBu
+))
+
+fig212kontb.add_trace(go.Bar(
+  y= df5['очная бакалавриат'],
+  x= df5['тип'],
+  name = "очная бакалавриат",
+))
+fig212kontb.add_trace(go.Bar(
+  y= df5['очная магистратура'],
+  x= df5['тип'],
+  name = "очная магистратура",
+))
+fig212kontb.update_layout(title_text="Multi-category axis")
+fig212kontb.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+
+
 # fig211mean.add_bar(df3,
 #               y='специалитет',
 #
@@ -198,7 +264,7 @@ vpo1 = html.Div(children=[
             id='graph4',
             figure=fig211mean1,
         )],
-        style={'width': '50%', 'display': 'inline-block'}
+        style={'width': '45%', 'display': 'inline-block'}
     ),
 # средние значения приема спец
     html.Div([
@@ -206,8 +272,47 @@ vpo1 = html.Div(children=[
             id='graph5',
             figure=fig211mean2,
         )],
-        style={'width': '50%', 'display': 'inline-block'}
+        style={'width': '45%', 'display': 'inline-block'}
     ),
+# контингент ДВФУ пл годам
+    html.Div([
+        dcc.Graph(
+            id='graph7',
+            figure={
+                'data': [
+                    {'x': [2017, 2018, 2019, 2020, 2021, 2022], 'y': [23347, 22537, 20370, 18174, 17969, 19094],
+                     'type': 'bar', 'name': 'Контингент'},
+                ],
+                'layout': {
+                    'title': 'Контингент ДВФУ по годам',
+                    'plot_bgcolor': colors['background'],
+                    'paper_bgcolor': colors['background'],
+                    'font': {
+                        'color': colors['text']
+                    }
+                }
+            })],
+        style={'width': '30%', 'display': 'inline-block'}
+    ),
+
+
+    # таблица 2.1.2
+    html.Div([
+        dcc.Graph(
+            id='graph6',
+            figure=fig212kont,
+        )],
+        style={'width': '30%', 'display': 'inline-block'}
+    ),
+    # таблица 2.1.2
+    html.Div([
+        dcc.Graph(
+            id='graph66',
+            figure=fig212kontb,
+        )],
+        style={'width': '30%', 'display': 'inline-block'}
+    ),
+
     # html.Div([
     #     dash_table.DataTable(
     #         data=df2.to_dict('records'),
@@ -253,30 +358,9 @@ vpo1 = html.Div(children=[
     # ),
 
 
-    html.Div(
-        children=[
-        html.H1(children='75%', className='inside-circle'),
-        ], className='header'
-    ),
 
-    html.Div([
-        dcc.Graph(
-        id='graph7',
-        figure={
-            'data': [
-                {'x': [2017, 2018, 2019, 2020, 2021, 2022], 'y': [23347, 22537, 20370, 18174, 17969, 19094], 'type': 'bar', 'name': 'Контингент'},
-            ],
-            'layout': {
-                'title': 'Контингент ДВФУ по годам',
-                'plot_bgcolor': colors['background'],
-                'paper_bgcolor': colors['background'],
-                'font': {
-                    'color': colors['text']
-                }
-            }
-        })],
-        style= {'width': '25%', 'display': 'inline-block'}
-    ),
+
+
     html.Div([
         dcc.Graph(
             id='graph8',
@@ -295,6 +379,11 @@ vpo1 = html.Div(children=[
                 }
             })],
         style={'width': '25%', 'display': 'inline-block'}
+    ),
+    html.Div(
+        children=[
+            html.H1(children='75%', className='inside-circle'),
+        ], className='header'
     ),
 
 ])
