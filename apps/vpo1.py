@@ -7,6 +7,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+import pycountry
+
+
 # BB сервер
 # vpo12022_12 = "https://bb.dvfu.ru/bbcswebdav/orgs/FUDOOD/%D0%91%D0%94/%D0%98%D0%90%D0%A6/1.2.csv"
 # vpo12022_211 = "https://bb.dvfu.ru/bbcswebdav/orgs/FUDOOD/%D0%91%D0%94/%D0%98%D0%90%D0%A6/2.1.1.csv"
@@ -36,8 +39,19 @@ df211b = pd.read_csv(path_vpo1+"2.1.1b.csv")
 df212 = pd.read_csv(path_vpo1+"2.1.2.csv", delimiter=";")
 df212b = pd.read_csv(path_vpo1+"2.1.2b.csv")
 df213 = pd.read_csv(path_vpo1 + "2.1.3.csv", delimiter=";")
+df2_11 = pd.read_csv(path_vpo1 + "211.csv", dtype={'n-страна': object}, delimiter=";")
+df2_12 = pd.read_csv(path_vpo1 + "212.csv", delimiter=";")
+df31 = pd.read_csv(path_vpo1 + "31.csv", delimiter=";")
 
 df211["УГС"] = df211["НПП"].map(lambda x: x[:2])
+
+
+# df.to_csv('H:/IAC/211x.csv',encoding='utf-8')
+
+
+
+
+
 
 # df2 = df1[['уровень',
 #            'Среднее минимальное количество баллов принятых на бюджет',
@@ -68,6 +82,26 @@ df213b = df213[['выпуск мужчины','выпуск женщины']].su
 # надо переделать по норм
 df213 = df213.groupby('форма').sum().reset_index().T
 df213 = df213.reset_index().drop(labels=[0, 4, 6], axis=0).reset_index()
+
+df2_11["country"] = df2_11["n-страна"].map(lambda x: pycountry.countries.get(numeric=str(x)).name)
+df2_11["iso_alpha"] = df2_11["n-страна"].map(lambda x: pycountry.countries.get(numeric=str(x)).alpha_3)
+df2_11 = df2_11.groupby(['country', 'год', 'iso_alpha'], group_keys=False).sum().reset_index()
+df2_11 = df2_11[df2_11.iso_alpha != 'RUS']
+
+df2_12['kont_male'] = df2_12['контингент']-df2_12['контингент -женщины']
+df2_12['vipusk_male'] = df2_12['выпуск']-df2_12['выпуск - женщины']
+df2_12 = df2_12.groupby(['возраст'], group_keys=False).sum().reset_index()
+df2_12 = df2_12[df2_12['возраст'] != 'Всего']
+
+print(df31.keys())
+print(df31.head())
+df31['step'] = df31['доктора наук'] + df31['кандидата наук']
+df31['nestep'] = df31['Всего, человек'] - df31['step']
+df31a = df31.drop(labels=[0,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,24,25,27,26,28,29,30,31,32,33,34,35],axis=0)
+df31b = df31.drop(labels=[0,1,2,3,4,5,6,7,8,9,19,20,21,22,23,24,25,27,26,28,29,30,31,32,33,34,35],axis=0)
+
+print(df31a.keys())
+print(df31b)
 
 
 colors = {
@@ -212,15 +246,15 @@ fig212kontb.update_layout({
 fig213 = go.Figure()
 fig213.add_trace(go.Bar(
   y=df213[1][:4],
-  x= ['всего','инв','бюджет','договор'],
-  name= "выпуск",
+  x=['всего', 'инв', 'бюджет', 'договор'],
+  name="выпуск",
   # color_discrete_sequence=px.colors.sequential.RdBu
 ))
 fig213.add_trace(go.Bar(
-  y= df213[1][4:8],
+  y=df213[1][4:8],
   # x= df213['index'][4:7],
-  x= ['всего','инв','бюджет','договор'],
-  name= "ожидаемый",
+  x=['всего', 'инв', 'бюджет', 'договор'],
+  name="ожидаемый",
   # color_discrete_sequence=px.colors.sequential.RdBu
 ))
 fig213.update_layout(title_text="выпуск/ожидаемый выпуск")
@@ -251,14 +285,153 @@ fig213b.update_layout({
     }
 })
 
-df = px.data.gapminder()
-print(df)
-# figMAP =  px.scatter_geo(df, locations="iso_alpha", color="continent",
-#                      hover_name="country", size="pop",
-#                      projection="natural earth")
-# create a map using choropleth
-figMAP = px.choropleth(df, locations='iso_alpha', color='lifeExp', hover_name='country',
-                       animation_frame='year', color_continuous_scale=px.colors.sequential.Plasma, projection='natural earth')
+
+
+
+
+figMAP_priem = px.choropleth(df2_11, locations='iso_alpha', color='Принято – всего', hover_name='country',
+                       color_continuous_scale=px.colors.sequential.Reds, projection='equirectangular')
+figMAP_priem.update_layout({
+    'plot_bgcolor': colors['text'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+figMAP_kont = px.choropleth(df2_11, locations='iso_alpha', color='контингент – всего', hover_name='country',
+                       color_continuous_scale=px.colors.sequential.Reds, projection='equirectangular')
+
+figMAP_kont.update_layout({
+    'plot_bgcolor': colors['text'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+
+
+# контингент по полу и возрасту
+fig2_12 = go.Figure()
+fig2_12.add_trace(go.Bar(
+  y=df2_12['kont_male'],
+  x=df2_12['возраст'],
+  name="муж",
+
+  # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig2_12.add_trace(go.Bar(
+    y=df2_12['контингент -женщины'],
+    x=df2_12['возраст'],
+    name="жен",
+    # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig2_12.update_layout(title_text="контингент по полу и возрасту")
+fig2_12.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+# выпуск по полу и возрасту
+fig2_12b = go.Figure()
+fig2_12b.add_trace(go.Bar(
+  y=df2_12['vipusk_male'],
+  x=df2_12['возраст'],
+  name="муж",
+
+  # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig2_12b.add_trace(go.Bar(
+    y=df2_12['выпуск - женщины'],
+    x=df2_12['возраст'],
+    name="жен",
+    # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig2_12b.update_layout(title_text="выпуск по возрасту и полу")
+fig2_12b.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+# 3.1 сотрудники
+fig31 = px.pie(
+    df31a,
+    values=df31a['Всего, человек'],
+    names=df31a['Наименование показателей'],
+    color_discrete_sequence=px.colors.sequential.RdBu,
+    # width=500,
+    # height=500,
+    hole=0.5,
+    title='Персонал'
+)
+fig31.update_layout({
+    'plot_bgcolor': colors['text'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+# 3.1 остепенненность
+fig31c = go.Figure()
+fig31c.add_trace(go.Bar(
+  y=df31b['nestep'],
+  x=df31b['Наименование показателей'],
+  name="неостепененный",
+
+  # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig31c.add_trace(go.Bar(
+    y=df31b['step'],
+    x=df31b['Наименование показателей'],
+    name="остпененные",
+    # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig31c.update_layout(title_text="остепененность")
+fig31c.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+
+# 3.1 Половой состав сотрудников
+# выпуск по полу и возрасту
+fig31b = go.Figure()
+fig31b.add_trace(go.Bar(
+  y=df31a['мужчины'],
+  x=df31a['Наименование показателей'],
+  name="муж",
+
+  # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig31b.add_trace(go.Bar(
+    y=df31a['женщины'],
+    x=df31a['Наименование показателей'],
+    name="жен",
+    # color_discrete_sequence=px.colors.sequential.RdBu
+))
+fig31b.update_layout(title_text="персонал и пол")
+fig31b.update_layout({
+    'plot_bgcolor': colors['background'],
+    'paper_bgcolor': colors['background'],
+    'font': {
+        'color': colors['text']
+    }
+})
+
+
+
+# figMAP_vipusk = px.choropleth(df2_11, locations='iso_alpha', color='Выпуск – всего', hover_name='country',
+#                        color_continuous_scale=px.colors.sequential.Plasma, projection='equirectangular')
+
 # figMAP = go.Figure(go.Scattergeo())
 # figMAP.update_geos(projection_type="natural earth")
 # figMAP.update_layout(height=300, margin={"r":0,"t":0,"l":0,"b":0})
@@ -394,8 +567,60 @@ vpo1 = html.Div(children=[
     ),
 
     html.Div([
-        dcc.Graph(figure=figMAP)
-    ]),
+        dcc.Graph(figure=figMAP_priem)
+    ],
+    style={'width': '50%', 'display': 'inline-block'}
+    ),
+    html.Div([
+        dcc.Graph(figure=figMAP_kont)
+    ],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # контингент по полу и возрасту
+    html.Div([
+        dcc.Graph(
+            # id="graph2",
+            figure=fig2_12,
+        )],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # выпуск по полу и возрасту
+    html.Div([
+        dcc.Graph(
+            # id="graph2",
+            figure=fig2_12b,
+        )],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # 3.1
+    html.Div([
+        dcc.Graph(
+            # id="graph2",
+            figure=fig31,
+        )],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # 3.1с
+    html.Div([
+        dcc.Graph(
+            # id="graph2",
+            figure=fig31c,
+        )],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # 3.1b
+    html.Div([
+        dcc.Graph(
+            # id="graph2",
+            figure=fig31b,
+        )],
+        style={'width': '50%', 'display': 'inline-block'}
+    ),
+    # html.Div([
+    #     dcc.Graph(figure=figMAP_vipusk)
+    # ],
+    #     style={'width': '33%', 'display': 'inline-block'}
+    # ),
 
     # html.Div([
     #     dash_table.DataTable(
